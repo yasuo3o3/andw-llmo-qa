@@ -618,10 +618,10 @@ $tabs = [
 
   <div class="card">
     <h2><?php esc_html_e('CSVサンプル', 'andw-llmo-qa'); ?></h2>
-<pre><code>title,short_answer,content,categories,tags,slug,status
+<code>title,short_answer,content,categories,tags,slug,status
 "モンゴル乗馬は初心者でも参加できる？","初心者歓迎ツアーが多く、初日に基本レクチャーを受けてから草原へ出ます。","&lt;p&gt;多くのツアーで安全指導と基礎練習を用意…&lt;/p&gt;","mongolia","初心者,安全,乗馬","beginner-ok","publish"
 "キッチンリフォームの費用相場はいくら？","規模により20〜150万円程度。間取り変更や設備グレードで変動します。","&lt;p&gt;…&lt;/p&gt;","reform","費用,相場,キッチン","kitchen-cost","draft"
-</code></pre>
+</code>
   </div>
 
 <?php endif; ?>
