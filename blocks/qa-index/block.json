@@ -1,0 +1,39 @@
+{
+  "apiVersion": 2,
+  "name": "andw/llmo-qa-index",
+  "title": "Q&Aインデックス（複数カテゴリ）",
+  "category": "widgets",
+  "icon": "index-card",
+  "description": "複数カテゴリのセクションをまとめて表示します。",
+  "supports": {
+    "html": false
+  },
+  "attributes": {
+    "categories": {
+      "type": "string",
+      "default": ""
+    },
+    "tags": {
+      "type": "string",
+      "default": ""
+    },
+    "perCategory": {
+      "type": "number",
+      "default": 6
+    },
+    "columns": {
+      "type": "number",
+      "default": 2
+    },
+    "showShort": {
+      "type": "boolean",
+      "default": true
+    },
+    "showMoreLink": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "editorScript": "andw-llmo-qa-index-editor",
+  "render": "file:./index.php"
+}

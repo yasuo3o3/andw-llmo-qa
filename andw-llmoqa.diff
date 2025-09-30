@@ -1,0 +1,220 @@
+--- LLMO Q&A Plugin Security and WPCS Compliance Patches ---
+Generated: 2025-09-11
+Total Files: 8
+Priority: Blocker(3) + Critical(4) + Major(2) + Minor(2) = 11 patches
+
+=== 1. BLOCKER: llmo-qa.php - Nonce検証とInput Sanitization ===
+--- a/llmo-qa.php
++++ b/llmo-qa.php
+@@ -450,8 +450,10 @@ class LLMO_QA_Plugin {
+         }
+         
+         // CSRF保護
+-        if (!wp_verify_nonce($_POST['nonce'], 'llmoqa_import_nonce')) {
++        $nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
++        if (!wp_verify_nonce($nonce, 'llmoqa_import_nonce')) {
+             wp_die('セキュリティチェックに失敗しました。');
+         }
+
+=== 2. BLOCKER: admin/import-page.php - File Upload Security ===
+--- a/admin/import-page.php
++++ b/admin/import-page.php
+@@ -15,13 +15,19 @@ if (isset($_POST['submit_csv']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+         wp_die('権限がありません。');
+     }
+     
+-    if (!wp_verify_nonce($_POST['nonce'], 'llmoqa_import_nonce')) {
++    $nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
++    if (!wp_verify_nonce($nonce, 'llmoqa_import_nonce')) {
+         wp_die('セキュリティチェックに失敗しました。');
+     }
+     
+-    if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] === UPLOAD_ERR_OK) {
+-        $file_path = $_FILES['csv_file']['tmp_name'];
+-        $file_name = $_FILES['csv_file']['name'];
++    // wp_handle_uploadを使用してファイルアップロードを安全に処理
++    $upload_overrides = array('test_form' => false, 'mimes' => array('csv' => 'text/csv'));
++    $uploaded_file = wp_handle_upload($_FILES['csv_file'], $upload_overrides);
++    
++    if (isset($uploaded_file['file'])) {
++        $file_path = $uploaded_file['file'];
++        $file_name = basename($uploaded_file['url']);
++        
+         // CSVファイル処理
+         llmoqa_process_csv_import($file_path);
+     }
+
+=== 3. BLOCKER: includes/admin/meta.php - AJAX Input Validation ===
+--- a/includes/admin/meta.php
++++ b/includes/admin/meta.php
+@@ -85,9 +85,10 @@ function llmoqa_ajax_generate_summary() {
+         wp_die('権限がありません。');
+     }
+     
+-    if (!wp_verify_nonce($_POST['nonce'], 'llmoqa_meta_nonce')) {
++    $nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
++    if (!wp_verify_nonce($nonce, 'llmoqa_meta_nonce')) {
+         wp_die('無効なリクエストです。');
+     }
+     
+-    $post_id = (int) $_POST['post_id'];
++    $post_id = (int) sanitize_text_field(wp_unslash($_POST['post_id'] ?? ''));
+
+=== 4. CRITICAL: includes/openai-api.php - Production Error Handling ===
+--- a/includes/openai-api.php
++++ b/includes/openai-api.php
+@@ -95,7 +95,8 @@ function llmoqa_call_openai_api($content, $timeout = 30) {
+         if (is_wp_error($response)) {
+-            error_log('OpenAI API Error: ' . $response->get_error_message());
++            /* translators: %s: API error message */
++            do_action('llmoqa_api_error', sprintf(__('OpenAI API Error: %s', 'llmo-qa'), $response->get_error_message()));
+             return false;
+         }
+@@ -110,7 +111,8 @@ function llmoqa_call_openai_api($content, $timeout = 30) {
+         }
+         
+     } catch (Exception $e) {
+-        error_log('OpenAI API Exception: ' . $e->getMessage());
++        /* translators: %s: exception message */
++        do_action('llmoqa_api_error', sprintf(__('OpenAI API Exception: %s', 'llmo-qa'), $e->getMessage()));
+         return false;
+     }
+
+=== 5. CRITICAL: blocks/qa-index/index.php - Query Optimization ===
+--- a/blocks/qa-index/index.php
++++ b/blocks/qa-index/index.php
+@@ -25,7 +25,11 @@ register_block_type(__DIR__, [
+         $query = new WP_Query([
+             'post_type' => 'qa',
+             'posts_per_page' => $per_page,
+-            'post_status' => 'publish'
++            'post_status' => 'publish',
++            // パフォーマンス最適化
++            'no_found_rows' => true,
++            'update_post_meta_cache' => false,
++            'update_post_term_cache' => false
+         ]);
+         
+         if (!$query->have_posts()) {
+@@ -42,7 +46,7 @@ register_block_type(__DIR__, [
+                 $output .= '<li class="qa-item">';
+                 $output .= '<h3><a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a></h3>';
+                 if ($show_excerpt && $excerpt) {
+-                    $output .= '<p class="qa-excerpt">' . esc_html(wp_trim_words($excerpt, 20)) . '</p>';
++                    $output .= '<p class="qa-excerpt">' . esc_html(wp_trim_words($excerpt, absint(20))) . '</p>';
+                 }
+                 $output .= '</li>';
+             endwhile;
+
+=== 6. CRITICAL: blocks/qa-list/index.php - Query Optimization ===
+--- a/blocks/qa-list/index.php
++++ b/blocks/qa-list/index.php
+@@ -28,7 +28,11 @@ register_block_type(__DIR__, [
+         $query = new WP_Query([
+             'post_type' => 'qa',
+             'posts_per_page' => $per_page,
+-            'orderby' => $orderby
++            'orderby' => $orderby,
++            // パフォーマンス最適化
++            'no_found_rows' => true,
++            'update_post_meta_cache' => false,
++            'update_post_term_cache' => false
+         ]);
+         
+         $output = '<div class="wp-block-llmo-qa-list">';
+@@ -39,7 +43,7 @@ register_block_type(__DIR__, [
+             while ($query->have_posts()): $query->the_post();
+                 $output .= '<div class="qa-list-item">';
+                 $output .= '<h4><a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a></h4>';
+-                $output .= '<span class="qa-date">' . get_the_date() . '</span>';
++                $output .= '<span class="qa-date">' . esc_html(get_the_date()) . '</span>';
+                 $output .= '</div>';
+             endwhile;
+
+=== 7. CRITICAL: templates/single-qa.php - XSS Prevention ===
+--- a/templates/single-qa.php
++++ b/templates/single-qa.php
+@@ -36,7 +36,7 @@ get_header(); ?>
+       </header>
+ 
+       <?php if ($short): ?>
+-        <section class="llmoqa-short"><?php echo wp_kses_post(wpautop(wp_kses_post($short))); ?></section>
++        <section class="llmoqa-short"><?php echo wp_kses_post(wpautop($short)); ?></section>
+       <?php endif; ?>
+
+=== 8. CRITICAL: llmo-qa.php - DateTime UTC Compliance ===
+--- a/llmo-qa.php
++++ b/llmo-qa.php
+@@ -320,7 +320,8 @@ class LLMO_QA_Plugin {
+         $modified_time = get_post_modified_time('c', false, $post_id);
+         
+         // 現在時刻もUTCで統一
+-        $current_time = date('c');
++        // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date -- UTC形式での現在時刻取得のため
++        $current_time = gmdate('c');
+         
+         $qa_data = [
+             "@context" => "https://schema.org",
+
+=== 9. MAJOR: llmo-qa.php - I18n Translators Comments ===
+--- a/llmo-qa.php
++++ b/llmo-qa.php
+@@ -156,6 +156,7 @@ class LLMO_QA_Plugin {
+         
+         // Kill Switch確認メッセージ
+         if (get_option(self::OPT_DISABLED, false)) {
++            /* translators: Plugin disabled status message */
+             echo '<div class="notice notice-warning"><p>' . esc_html__('LLMO Q&Aプラグインは現在無効化されています。', 'llmo-qa') . '</p></div>';
+         }
+     }
+@@ -245,6 +246,7 @@ class LLMO_QA_Plugin {
+         
+         // バリデーションエラー
+         if (empty($title) || empty($content)) {
++            /* translators: Form validation error message */
+             wp_die(__('タイトルと本文は必須です。', 'llmo-qa'));
+         }
+
+=== 10. MAJOR: includes/openai-api.php - I18n Translators Comments ===
+--- a/includes/openai-api.php
++++ b/includes/openai-api.php
+@@ -75,6 +75,7 @@ function llmoqa_call_openai_api($content, $timeout = 30) {
+         if (empty($api_key)) {
++            /* translators: API configuration error message */
+             return new WP_Error('no_api_key', __('OpenAI APIキーが設定されていません。', 'llmo-qa'));
+         }
+         
+@@ -128,6 +129,7 @@ function llmoqa_call_openai_api($content, $timeout = 30) {
+         }
+         
+         if (!isset($data['choices'][0]['message']['content'])) {
++            /* translators: API response format error */
+             return new WP_Error('invalid_response', __('APIレスポンスの形式が正しくありません。', 'llmo-qa'));
+         }
+
+=== 11. MINOR: includes/admin/meta.php - Numeric Value Escaping ===
+--- a/includes/admin/meta.php
++++ b/includes/admin/meta.php
+@@ -125,7 +125,7 @@ function llmoqa_meta_box_callback($post) {
+     <tr>
+         <th><label for="qa_priority"><?php esc_html_e('優先度', 'llmo-qa'); ?></label></th>
+         <td>
+-            <input type="number" id="qa_priority" name="qa_priority" value="<?php echo $priority; ?>" min="1" max="10" />
++            <input type="number" id="qa_priority" name="qa_priority" value="<?php echo esc_attr(absint($priority)); ?>" min="1" max="10" />
+             <p class="description"><?php esc_html_e('1-10の範囲で設定してください。', 'llmo-qa'); ?></p>
+         </td>
+     </tr>
+
+=== IMPLEMENTATION SCHEDULE ===
+Day 1 (4h): BLOCKER patches (#1-3)
+Day 2 (6h): CRITICAL patches (#4-8)
+Day 3 (3h): MAJOR/MINOR patches (#9-11) + Testing
+
+=== TESTING CHECKLIST ===
+□ PHPCS実行: vendor/bin/phpcs --standard=WordPress
+□ 静的解析: vendor/bin/phpstan analyze
+□ CSVインポート機能テスト
+□ AJAX要約生成テスト
+□ Gutenbergブロック表示確認
+□ フロントエンド表示確認
+□ Plugin Directory guidelines準拠確認

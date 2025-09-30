@@ -1,0 +1,91 @@
+.andw-llmoqa-meta-sidebar {
+    /* サイドバー全体のスタイル */
+}
+
+.andw-llmoqa-warning-banner {
+    background-color: #dc3232;
+    color: white;
+    padding: 12px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    border-left: 4px solid #a00;
+}
+
+.andw-llmoqa-warning-banner p {
+    margin: 0;
+    font-weight: 600;
+}
+
+.andw-llmoqa-preview-section {
+    margin: 16px 0;
+}
+
+.andw-llmoqa-preview-section h4 {
+    margin: 0 0 8px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e1e1e;
+}
+
+.andw-llmoqa-preview-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 0;
+    color: #757575;
+}
+
+.andw-llmoqa-preview-text {
+    background-color: #f6f7f7;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    max-height: 200px;
+    overflow-y: auto;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+.andw-llmoqa-character-count {
+    margin-top: 8px;
+    font-size: 11px;
+    color: #757575;
+    text-align: right;
+}
+
+/* Gutenberg コンポーネントのスタイル調整 */
+.andw-llmoqa-meta-sidebar .components-panel__body {
+    border: none;
+}
+
+.andw-llmoqa-meta-sidebar .components-base-control__help {
+    font-size: 11px;
+    color: #757575;
+}
+
+.andw-llmoqa-meta-sidebar .components-toggle-control__label {
+    font-weight: 600;
+}
+
+/* v0.06: 読み取り専用テキストエリア */
+.andw-llmoqa-meta-sidebar .readonly-textarea textarea {
+    background-color: #f6f7f7 !important;
+    color: #666 !important;
+    cursor: default !important;
+}
+
+.andw-llmoqa-meta-sidebar .readonly-textarea .components-base-control__help {
+    color: #0073aa !important;
+    font-weight: 500;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 782px) {
+    .andw-llmoqa-preview-text {
+        font-size: 11px;
+        padding: 8px;
+    }
+}

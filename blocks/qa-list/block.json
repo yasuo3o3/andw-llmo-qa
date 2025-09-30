@@ -1,0 +1,39 @@
+{
+  "apiVersion": 2,
+  "name": "andw/llmo-qa-list",
+  "title": "Q&A一覧（カテゴリ）",
+  "category": "widgets",
+  "icon": "list-view",
+  "description": "指定カテゴリのQ&Aを最新順で表示します。",
+  "supports": {
+    "html": false
+  },
+  "attributes": {
+    "category": {
+      "type": "string",
+      "default": ""
+    },
+    "tags": {
+      "type": "string",
+      "default": ""
+    },
+    "limit": {
+      "type": "number",
+      "default": 12
+    },
+    "columns": {
+      "type": "number",
+      "default": 2
+    },
+    "showShort": {
+      "type": "boolean",
+      "default": true
+    },
+    "showTitle": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "editorScript": "andw-llmo-qa-list-editor",
+  "render": "file:./index.php"
+}

@@ -1,0 +1,37 @@
+.andw-llmoqa-admin .card { background:#fff; padding:16px; border:1px solid #e5e7eb; border-radius:8px; margin-bottom:20px; }
+.andw-llmoqa-admin .field { margin:12px 0; }
+
+/* Tags checkbox metabox */
+.andw-llmoqa-tags-checkbox { max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 8px; border-radius: 4px; background: #f9f9f9; }
+.andw-llmoqa-tags-checkbox label { font-size: 12px; line-height: 1.4; }
+.andw-llmoqa-tags-checkbox input[type="checkbox"] { margin-right: 6px; }
+
+/* API Key setting styles */
+.andw-llmoqa-key-row { 
+    display: flex; 
+    gap: 0.5rem; 
+    align-items: center; 
+    max-width: 640px; 
+}
+.andw-llmoqa-input-key { 
+    width: 420px; 
+    max-width: 100%; 
+}
+.andw-llmoqa-key-status code {
+    display: block; 
+    max-width: 640px; 
+    padding: 6px 8px;
+    background: #f6f7f7; 
+    border-radius: 4px; 
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap;
+}
+
+/* 関連QA件数無効化時のスタイル */
+input[type="number"].disabled-input {
+    background-color: #f6f7f7;
+    color: #999;
+    cursor: not-allowed;
+}

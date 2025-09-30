@@ -1,0 +1,14 @@
+{
+  "apiVersion": 2,
+  "name": "andw/llmo-short-answer",
+  "title": "即答（andW）",
+  "category": "text",
+  "icon": "yes",
+  "description": "AIに拾わせる短い回答（50〜100文字）を入力。メタに保存され、JSON-LDにも反映。",
+  "supports": {
+    "html": false,
+    "multiple": false
+  },
+  "editorScript": "andw-short-answer-editor",
+  "render": "file:./index.php"
+}

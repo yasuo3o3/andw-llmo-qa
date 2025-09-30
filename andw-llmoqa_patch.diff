@@ -1,0 +1,168 @@
+  --- llmo-qa.php
+  +++ llmo-qa.php
+  @@ -699,7 +699,8 @@
+  -        if (!isset($_POST['llmoqa_tags_checkbox_nonce_field']) || 
+  -            !wp_verify_nonce($_POST['llmoqa_tags_checkbox_nonce_field'], 'llmoqa_tags_checkbox_nonce')) {
+  +        $nonce = sanitize_text_field(wp_unslash($_POST['llmoqa_tags_checkbox_nonce_field'] ?? ''));
+  +        if (!wp_verify_nonce($nonce, 'llmoqa_tags_checkbox_nonce')) {
+  
+
+  --- includes/admin/meta.php
+  +++ includes/admin/meta.php
+  @@ -96,7 +96,8 @@
+  -        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'llmoqa_meta_nonce')) {
+  +        $nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
+  +        if (!wp_verify_nonce($nonce, 'llmoqa_meta_nonce')) {
+
+
+  --- admin/import-page.php
+  +++ admin/import-page.php
+  @@ -413,10 +413,18 @@
+  -            $uploaded_file = $_FILES['llmoqa_csv'];
+  -            $uploaded_file['name'] = sanitize_file_name($uploaded_file['name']);
+  -            $tmp = $uploaded_file['tmp_name'];
+  -            $filename = $uploaded_file['name'];
+  +            // wp_handle_upload()による安全なアップロード処理
+  +            $upload_overrides = array(
+  +                'test_form' => false,
+  +                'mimes' => array('csv' => 'text/csv')
+  +            );
+  +
+  +            $uploaded = wp_handle_upload($_FILES['llmoqa_csv'], $upload_overrides);
+  +
+  +            if (isset($uploaded['error'])) {
+  +                wp_die(esc_html($uploaded['error']));
+  +            }
+  +
+  +            $tmp = $uploaded['file'];
+  +            $filename = basename($uploaded['file']);
+
+
+  --- templates/single-qa.php
+  +++ templates/single-qa.php
+  @@ -36,7 +36,7 @@
+  -        <section class="llmoqa-short"><?php echo wpautop(wp_kses_post($short)); ?></section>
+  +        <section class="llmoqa-short"><?php echo wp_kses_post(wpautop(wp_kses_post($short))); ?></section>
+
+
+  @@ -44,7 +44,7 @@
+  -          echo do_blocks($answer_display);
+  +          echo wp_kses_post(do_blocks($answer_display));
+
+
+  --- blocks/qa-list/index.php
+  +++ blocks/qa-list/index.php
+  @@ -16,6 +16,10 @@
+  +        'no_found_rows'  => true,
+  +        'fields'         => 'ids',
+  +        'update_post_meta_cache' => false,
+  +        'update_post_term_cache' => false,
+
+  @@ -36,8 +40,10 @@
+  +        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- 複数タクソノミー絞り込み必須機能
+           $args['tax_query'] = array_merge(['relation' => 'AND'], $tax_queries);
+         } elseif (count($tax_queries) === 1) {
+  +        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- カテゴリ・タグ絞り込み必須機能
+
+
+  --- llmo-qa.php
+  +++ llmo-qa.php
+  @@ -207,6 +207,7 @@
+  +        /* translators: %s はエラーメッセージ */
+  
+  @@ -1286,6 +1287,7 @@
+  +                /* translators: %s は投稿タイトル */
+  
+
+  --- includes/openai-api.php
+  +++ includes/openai-api.php
+  @@ -228,6 +228,7 @@
+  +                    /* translators: %1$d はHTTPステータスコード、%2$s はエラーメッセージ */
+  -                    __('APIエラー (HTTP %d): %s', 'llmo-qa'),
+  +                    __('APIエラー (HTTP %1$d): %2$s', 'llmo-qa'),
+
+
+  --- includes/openai-api.php
+  +++ includes/openai-api.php
+  @@ -48,7 +48,7 @@
+  -        error_log($log_entry);
+  +        do_action('llmoqa_debug_log', $log_entry);
+  
+
+  --- includes/admin/meta.php
+  +++ includes/admin/meta.php
+  @@ -106,7 +106,7 @@
+  -        $rich_content = wp_unslash($_POST['rich_content'] ?? '');
+  +        $rich_content = wp_kses_post(wp_unslash($_POST['rich_content'] ?? ''));
+
+
+  --- llmo-qa.php
+  +++ llmo-qa.php
+  @@ -344,11 +344,11 @@
+  -            $date_published = date('c', strtotime($post->post_date_gmt . ' UTC'));
+  +            $date_published = gmdate('c', strtotime($post->post_date_gmt . ' UTC'));
+               $date_modified = null;
+               if (strtotime($post->post_modified_gmt) > strtotime($post->post_date_gmt)) {
+  -                $date_modified = date('c', strtotime($post->post_modified_gmt . ' UTC'));
+  +                $date_modified = gmdate('c', strtotime($post->post_modified_gmt . ' UTC'));
+               }
+
+               // 拡張QAPageスキーマ構築
+
+
+  --- blocks/qa-index/index.php
+  +++ blocks/qa-index/index.php
+  @@ -58,7 +58,7 @@
+           }
+           echo '</header>';
+
+  -        echo '<div class="llmoqa-list llmoqa-cols-'.$cols.'">';
+  +        echo '<div class="llmoqa-list llmoqa-cols-'.esc_attr(absint($cols)).'">';
+           while ($q->have_posts()) { $q->the_post();
+             $short = get_post_meta(get_the_ID(), LLMO_QA_Plugin::META_SHORT, true); ?>
+             <article class="llmoqa-item">
+  @@ -99,7 +99,7 @@
+             }
+             echo '</header>';
+
+  -          echo '<div class="llmoqa-list llmoqa-cols-'.$cols.'">';
+  +          echo '<div class="llmoqa-list llmoqa-cols-'.esc_attr(absint($cols)).'">';
+             while ($q->have_posts()) { $q->the_post();
+               $short = get_post_meta(get_the_ID(), LLMO_QA_Plugin::META_SHORT, true); ?>
+               <article class="llmoqa-item">
+
+
+  --- blocks/qa-list/index.php
+  +++ blocks/qa-list/index.php
+  @@ -46,7 +46,7 @@
+         ob_start();
+         $cols = max(1, min(6, (int)$a['columns']));
+  -      echo '<div class="llmoqa-list llmoqa-cols-'.$cols.'">';
+  +      echo '<div class="llmoqa-list llmoqa-cols-'.esc_attr(absint($cols)).'">';
+         while ($q->have_posts()) { $q->the_post();
+           $short = get_post_meta(get_the_ID(), LLMO_QA_Plugin::META_SHORT, true); ?>
+           <article class="llmoqa-item">
+
+
+  --- llmo-qa.php
+  +++ llmo-qa.php
+  @@ -628,11 +628,16 @@
+           $args = [
+               'post_type' => self::CPT,
+               'posts_per_page' => $num,
+  +            // phpcs:ignore WPVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- 
+  関連記事から現在記事除外が必須
+               'post__not_in' => [get_the_ID()],
+               'orderby' => 'date',
+               'order' => 'DESC',
+  +            'no_found_rows' => true,
+  +            'fields' => 'ids',
+  +            'update_post_meta_cache' => false,
+  +            'update_post_term_cache' => false,
+           ];
+           if ($term_ids) {
+  +            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- カテゴリ別関連記事取得が必須機能
+               $args['tax_query'] = [[
+                   'taxonomy' => self::TAX,
+                   'field' => 'term_id',
+

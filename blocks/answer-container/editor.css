@@ -1,0 +1,28 @@
+.llmoqa-answer-container-editor {
+    border: 2px dashed #ccc;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 16px 0;
+    background: #fafafa;
+}
+
+.llmoqa-answer-container-label {
+    font-size: 12px;
+    color: #666;
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* エディタ内でのスタイリング */
+.llmoqa-answer-container-editor .wp-block {
+    max-width: none;
+}
+
+/* 禁止ブロック警告スタイル（Notices API使用） */
+.components-notice.is-warning[data-id="llmoqa-forbidden-blocks"] {
+    background-color: #dc3232;
+    color: white;
+    border-left-color: #a00;
+}

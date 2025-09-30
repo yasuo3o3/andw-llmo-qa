@@ -1,0 +1,31 @@
+{
+  "apiVersion": 3,
+  "name": "andw/llmo-answer-container",
+  "title": "回答エリア（Answer Container）",
+  "category": "text",
+  "icon": "text",
+  "description": "構造化されたリッチな回答編集エリア。プレーンテキスト版も自動生成されます。",
+  "keywords": ["answer", "qa", "rich", "schema"],
+  "supports": {
+    "html": false,
+    "multiple": false,
+    "inserter": true
+  },
+  "allowedBlocks": [
+    "core/paragraph",
+    "core/heading",
+    "core/list",
+    "core/quote",
+    "core/image"
+  ],
+  "attributes": {
+    "placeholder": {
+      "type": "string",
+      "default": "リッチな回答をここに入力してください..."
+    }
+  },
+  "textdomain": "andw-llmo-qa",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}
