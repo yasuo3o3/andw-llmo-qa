@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       andW llmo-qa（汎用質問・即答・解説）
+ * Plugin Name:       andW LLMO-QA（汎用質問・即答・解説）
  * Description:       /qa/ 配下に「質問＋即答＋解説」構造とFAQ構造化データを自動出力。CPT/カテゴリ/タグ/CSV一括投入/即答ブロック/関連リンク自動出力/タグ機能を同梱。
  * Version:           0.07
  * Author:            Netservice
