@@ -33,7 +33,7 @@ $use_rich_on_archive = (bool)get_option(Andw_Llmo_QA_Plugin::OPT_USE_RICH_ON_ARC
     <div class="andw_llmoqa-list<?php echo $use_rich_on_archive ? ' andw_llmoqa-list-rich' : ' andw_llmoqa-list-plain'; ?>">
       <?php while (have_posts()): the_post();
         // v0.06: フォールバック要約表示
-        $plugin = new LLMO_QA_Plugin();
+        $plugin = new Andw_Llmo_QA_Plugin();
         
         // 表示する回答コンテンツを決定
         $display_content = '';

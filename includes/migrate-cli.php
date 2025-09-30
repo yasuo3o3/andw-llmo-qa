@@ -14,7 +14,7 @@ if (!class_exists('WP_CLI')) {
     return;
 }
 
-class LLMO_QA_CLI_Command {
+class Andw_Llmo_QA_CLI_Command {
 
     /**
      * エラーログ用プロパティ
@@ -209,7 +209,7 @@ class LLMO_QA_CLI_Command {
             return false;
         }
 
-        $plugin = new LLMO_QA_Plugin();
+        $plugin = new Andw_Llmo_QA_Plugin();
         
         // Answer Containerの内容を抽出
         $answer_display = '';
@@ -350,7 +350,7 @@ class LLMO_QA_CLI_Command {
      * 単一サイトでの要約補完
      */
     private function fill_summary_single_site($use_ai, $missing_only, $dry_run, $limit) {
-        $plugin = new LLMO_QA_Plugin();
+        $plugin = new Andw_Llmo_QA_Plugin();
         
         // クエリ条件
         $query_args = [
@@ -494,4 +494,4 @@ class LLMO_QA_CLI_Command {
 }
 
 // WP-CLI コマンドを登録
-WP_CLI::add_command('andw_llmoqa', 'LLMO_QA_CLI_Command');
+WP_CLI::add_command('andw_llmoqa', 'Andw_Llmo_QA_CLI_Command');

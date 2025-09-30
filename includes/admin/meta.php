@@ -7,7 +7,7 @@
 
 if (!defined('ABSPATH')) exit;
 
-class LLMO_QA_Meta_Panel {
+class Andw_Llmo_QA_Meta_Panel {
     
     public function __construct() {
         add_action('enqueue_block_editor_assets', [$this, 'enqueue_editor_assets']);
@@ -84,7 +84,7 @@ class LLMO_QA_Meta_Panel {
             return;
         }
 
-        $plugin = new LLMO_QA_Plugin();
+        $plugin = new Andw_Llmo_QA_Plugin();
         if ($plugin->has_forbidden_blocks($post->post_content)) {
             echo '<div class="notice notice-error andw_llmoqa-forbidden-notice">';
             echo '<p><strong>' . esc_html__('スキーマ自動停止中', 'andw-llmo-qa') . ':</strong> ';
@@ -113,7 +113,7 @@ class LLMO_QA_Meta_Panel {
             wp_send_json_error(__('無効な投稿です', 'andw-llmo-qa'));
         }
 
-        $plugin = new LLMO_QA_Plugin();
+        $plugin = new Andw_Llmo_QA_Plugin();
         $plain_text = $plugin->generate_plain_from_rich($rich_content);
         
         wp_send_json_success([
@@ -125,4 +125,4 @@ class LLMO_QA_Meta_Panel {
 }
 
 // 初期化
-new LLMO_QA_Meta_Panel();
+new Andw_Llmo_QA_Meta_Panel();
