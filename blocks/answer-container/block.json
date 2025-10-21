@@ -25,7 +25,7 @@
     }
   },
   "textdomain": "andw-llmo-qa",
-  "editorScript": "file:./index.js",
+  "editorScript": "andw-llmo-answer-container-editor",
   "editorStyle": "file:./editor.css",
   "style": "file:./style.css"
 }

@@ -14,7 +14,7 @@ register_block_type(__DIR__, [
 // エディタ用スクリプト登録（ビルド不要）
 add_action('init', function() {
     wp_register_script(
-        'llmo-short-answer-editor',
+        'andw-short-answer-editor',
         plugins_url('index.js', __FILE__),
         ['wp-blocks','wp-element','wp-components','wp-data','wp-editor','wp-i18n'],
         '0.02',
