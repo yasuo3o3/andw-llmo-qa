@@ -73,7 +73,7 @@ register_block_type(__DIR__, [
 
 add_action('init', function() {
   wp_register_script(
-    'llmo-qa-list-editor',
+    'andw-llmo-qa-list-editor',
     plugins_url('index.js', __FILE__),
     ['wp-blocks','wp-element','wp-components','wp-i18n','wp-block-editor'],
     '0.02',

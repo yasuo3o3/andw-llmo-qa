@@ -128,7 +128,7 @@ register_block_type(__DIR__, [
 
 add_action('init', function() {
   wp_register_script(
-    'llmo-qa-index-editor',
+    'andw-llmo-qa-index-editor',
     plugins_url('index.js', __FILE__),
     ['wp-blocks','wp-element','wp-components','wp-i18n','wp-block-editor'],
     '0.02',
