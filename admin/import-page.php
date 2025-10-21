@@ -480,8 +480,12 @@ $tabs = [
                     break;
                 }
                 
-                if ($row === null || $row === [null]) {
-                    $empty_rows++;
+                if ($row === null || $row === [null] || $row === false) {
+                    if ($row === false) {
+                        $malformed_rows++;
+                    } else {
+                        $empty_rows++;
+                    }
                     continue;
                 }
                 
@@ -493,6 +497,10 @@ $tabs = [
             
             if ($empty_rows > 0) {
                 echo '<div class="notice notice-info"><p>' . esc_html(sprintf('空行 %d 行をスキップしました', $empty_rows)) . '</p></div>';
+            }
+
+            if ($malformed_rows > 0) {
+                echo '<div class="notice notice-warning"><p>' . esc_html(sprintf('不正な形式の行 %d 行をスキップしました', $malformed_rows)) . '</p></div>';
             }
 
             if (count($rows) < 1) {
